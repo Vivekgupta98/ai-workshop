@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -u
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+PYTHON="$ROOT/.venv/bin/python"
+FAILURES=0
+
+pass() { printf "✓ %s\n" "$1"; }
+warn() { printf "! %s\n" "$1"; }
+fail() { printf "✗ %s\n" "$1"; FAILURES=$((FAILURES + 1)); }
+
+doctor() {
+  echo "Agentic AI Workshop setup check"
+  echo
+
+  if [[ -x "$PYTHON" ]]; then
+    VERSION="$($PYTHON --version 2>&1)"
+    [[ "$VERSION" == Python\ 3.12.* ]] && pass "$VERSION" || fail "$VERSION — Python 3.12 is required"
+  else
+    fail "Virtual environment missing — run: python3.12 -m venv .venv"
+  fi
+
+  if [[ "${VIRTUAL_ENV:-}" == "$ROOT/.venv" ]]; then
+    pass "Workshop virtual environment active"
+  else
+    warn "Environment is not active — run: source .venv/bin/activate"
+  fi
+
+  if [[ -x "$PYTHON" ]] && "$PYTHON" -c "import ipykernel, jupyterlab, langchain, langgraph, mlflow" >/dev/null 2>&1; then
+    pass "Core Python dependencies import correctly"
+  else
+    fail "Dependencies incomplete — run: $PYTHON -m pip install -r requirements.txt"
+  fi
+
+  if curl -fsS http://127.0.0.1:5001/health >/dev/null 2>&1; then
+    pass "MLflow is running at http://127.0.0.1:5001"
+  else
+    fail "MLflow is not running — run: ./workshop start"
+  fi
+
+  if curl -fsS http://127.0.0.1:8317/v1/models -H "Authorization: Bearer 123456" >/dev/null 2>&1; then
+    pass "Workshop model endpoint is reachable"
+  else
+    fail "Model endpoint is unavailable at http://127.0.0.1:8317/v1"
+  fi
+
+  if curl -fsS http://127.0.0.1:5001/gateway/mlflow/v1/chat/completions \
+    -H "Authorization: Bearer not-needed" \
+    -H "Content-Type: application/json" \
+    --data '{"model":"workshop-gemini","messages":[{"role":"user","content":"Reply ready"}],"max_tokens":8}' \
+    >/dev/null 2>&1; then
+    pass "MLflow Gateway returned a model response"
+  else
+    fail "MLflow Gateway is not configured — follow README.md section 3"
+  fi
+
+  if [[ -f "$ROOT/.env" ]] && grep -Eq '^JUDGE0_(RAPID|ATD)_API_KEY=.+' "$ROOT/.env"; then
+    pass "Judge0 key found for Days 4–7"
+  else
+    warn "Judge0 key not found — Days 0–3 work; Days 4–5 can use EXECUTION_MODE=mock"
+  fi
+
+  echo
+  if [[ "$FAILURES" -eq 0 ]]; then
+    echo "Ready for the workshop."
+  else
+    echo "$FAILURES required check(s) failed. Fix the first failure, then run ./workshop doctor again."
+  fi
+  return "$FAILURES"
+}
+
+case "${1:-doctor}" in
+  doctor) doctor ;;
+  start) "$ROOT/scripts/start-mlflow.sh" ;;
+  stop) "$ROOT/scripts/stop-mlflow.sh" ;;
+  *) echo "Usage: ./workshop {doctor|start|stop}"; exit 2 ;;
+esac
