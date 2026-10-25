@@ -1,4 +1,4 @@
-# Workshop Troubleshooting
+# Workshop troubleshooting
 
 Run this first:
 
@@ -21,7 +21,7 @@ python -m pip install -r requirements.txt
 
 ## Jupyter uses the wrong environment
 
-In Jupyter, select **Kernel → Change Kernel → Python 3.12 — Agentic AI Workshop**. If it is absent, register it again using the command in the root README.
+In Jupyter, select `Kernel -> Change Kernel` and choose the workshop kernel. If it is absent, register it again using the command in the root README.
 
 ## Port 5001 is already in use
 
@@ -31,8 +31,6 @@ Try the workshop stop command:
 ./workshop stop
 ./workshop start
 ```
-
-Day 7 has its own MLflow container. Stop the root MLflow server before starting the Day 7 stack.
 
 ## The model endpoint is unavailable
 
@@ -50,29 +48,25 @@ Rerun the cell once. If it repeats, inspect the MLflow trace to see the raw mode
 
 Start Jupyter from the day folder shown in that day's README. Restart the kernel after changing folders or installing packages.
 
-## Judge0 credentials or quota are unavailable
+## Local Judge0 is unavailable
 
-Set this in the root `.env` file:
-
-```text
-EXECUTION_MODE=mock
-```
-
-The mock supports the running tutorial case only. It teaches the tool contract and routing but does not validate arbitrary programs. Switch to `EXECUTION_MODE=judge0` for real execution.
-
-## Judge0 returns timeout or quota errors
-
-Stop repeated runs. Check the provider quota and verify that the notebook's execution limit is bounded. Do not increase CPU, wall-time, output, or process limits merely to hide an unknown failure.
-
-## Docker services do not become healthy
-
-Confirm Docker Desktop is running, then inspect service status and the first failing service's logs:
+Start Docker, then run:
 
 ```bash
-docker compose -f day-7/tutorial/compose.yaml ps
-docker compose -f day-7/tutorial/compose.yaml logs temporal
+./workshop judge0-start
+./workshop judge0-test
 ```
 
-## The Day 7 stream reconnects
+If startup fails, inspect `./workshop judge0-logs`. Judge0 CE `v1.13.1` is officially tested on Linux; use the workshop Linux or WSL 2 fallback if Docker Desktop cannot run its privileged worker correctly.
 
-This is expected after a short network interruption. The client uses SSE event IDs to request only unseen durable workflow events. If the workflow itself failed, inspect Temporal first and MLflow second.
+## A Judge0 language smoke test fails
+
+The smoke test must execute Python 3.8.1, C++14 with GCC 9.2, and Java 11. The Judge0 image uses its Java 13 compiler with `--release 11`, then runs the program with its OpenJDK 11 runtime. Inspect the first compiler or runtime error printed by `./workshop judge0-test`.
+
+## Judge0 containers do not become healthy
+
+Confirm Docker is running, then inspect the local Judge0 logs:
+
+```bash
+./workshop judge0-logs
+```

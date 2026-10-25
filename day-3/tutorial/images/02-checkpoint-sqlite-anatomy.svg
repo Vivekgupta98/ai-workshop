@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">What a LangGraph checkpoint stores in SQLite</title>
+  <desc id="desc">A technical view of the checkpoint chain, the checkpoints and writes tables, the decoded checkpoint blob, and how a thread resumes from its latest durable state.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 20px Inter,Arial,sans-serif;fill:#475569}.h{font:700 21px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 17px Inter,Arial,sans-serif;fill:#334155}.small{font:500 14px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 13px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.6px}.white{fill:#fff}.edge{stroke:#4f46e5;stroke-width:4;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="72">Inside a LangGraph checkpoint</text>
+  <text class="sub" x="72" y="108">SQLite stores a chain of durable snapshots plus node writes. The Python process itself is disposable.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="138" width="1456" height="198" rx="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="100" y="170">CHECKPOINT CHAIN FOR thread_id = "day-3-verifier-001"</text>
+
+    <rect x="100" y="194" width="226" height="112" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="tag" x="120" y="220">INPUT · STEP −1</text>
+    <text class="mono" x="120" y="249">current_test: 0</text>
+    <text class="mono" x="120" y="275">results: []</text>
+    <text class="small" x="120" y="297">parent: NULL</text>
+
+    <path class="edge" d="M326 250H372"/>
+
+    <rect x="388" y="194" width="226" height="112" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="tag" x="408" y="220">READY · STEP 0</text>
+    <text class="mono" x="408" y="249">next: run_next_test</text>
+    <text class="mono" x="408" y="275">current_test: 0</text>
+    <text class="small" x="408" y="297">parent → input</text>
+
+    <path class="edge" d="M614 250H660"/>
+
+    <rect x="676" y="194" width="226" height="112" rx="14" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="tag" x="696" y="220">AFTER TEST 1 · STEP 1</text>
+    <text class="mono" x="696" y="249">current_test: 1</text>
+    <text class="mono" x="696" y="275">results: [test 1]</text>
+    <text class="small" x="696" y="297">parent → step 0</text>
+
+    <path class="edge" d="M902 250H948"/>
+
+    <rect x="964" y="186" width="250" height="128" rx="14" fill="#ecfdf5" stroke="#0f766e" stroke-width="4"/>
+    <text class="tag" x="984" y="214">LATEST SAFE · STEP 2</text>
+    <text class="mono" x="984" y="243">current_test: 2</text>
+    <text class="mono" x="984" y="269">results: [test 1, test 2]</text>
+    <text class="mono" x="984" y="295">next: run_next_test</text>
+
+    <path class="edge" d="M1214 250H1256"/>
+
+    <rect x="1272" y="194" width="228" height="112" rx="14" fill="#fff1f2" stroke="#fb7185" stroke-width="3" stroke-dasharray="10 8"/>
+    <text x="1292" y="220" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#be123c" letter-spacing=".6">TEST 3 FAILS</text>
+    <text class="mono" x="1292" y="249">writes: __error__</text>
+    <text x="1292" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="15" font-weight="600" fill="#be123c">no child checkpoint</text>
+    <text class="small" x="1292" y="298">resume from step 2</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="370" width="456" height="424" rx="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="72" y="370" width="456" height="58" rx="18" fill="#0f172a"/>
+    <text x="100" y="407" font-family="Inter,Arial" font-size="21" font-weight="700" fill="#fff">SQLite schema</text>
+
+    <text class="tag" x="100" y="462">TABLE checkpoints</text>
+    <text class="mono" x="100" y="490">thread_id + checkpoint_ns</text>
+    <text class="mono" x="100" y="516">checkpoint_id                 PK</text>
+    <text class="mono" x="100" y="542">parent_checkpoint_id          chain</text>
+    <text class="mono" x="100" y="568">type = "msgpack"</text>
+    <rect x="92" y="584" width="416" height="66" rx="10" fill="#eef2ff"/>
+    <text class="mono" x="112" y="611">checkpoint BLOB  → graph snapshot</text>
+    <text class="mono" x="112" y="637">metadata bytes   → source + step</text>
+
+    <line x1="100" y1="674" x2="500" y2="674" stroke="#e2e8f0" stroke-width="2"/>
+    <text class="tag" x="100" y="706">TABLE writes</text>
+    <text class="mono" x="100" y="734">checkpoint_id + task_id + idx  PK</text>
+    <text class="mono" x="100" y="760">task_path · channel · type · value</text>
+    <text class="small" x="100" y="784">Node outputs, route writes, and errors.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="554" y="370" width="648" height="424" rx="18" fill="#fff" stroke="#6366f1" stroke-width="3"/>
+    <rect x="554" y="370" width="648" height="58" rx="18" fill="#4f46e5"/>
+    <text x="582" y="407" font-family="Inter,Arial" font-size="21" font-weight="700" fill="#fff">Decode one checkpoint BLOB</text>
+
+    <text class="tag" x="582" y="462">LEARNER STATE · channel_values</text>
+    <rect x="582" y="480" width="296" height="270" rx="14" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="mono" x="606" y="514">language: "python"</text>
+    <text class="mono" x="606" y="544">source_code: "..."</text>
+    <text class="mono" x="606" y="574">test_cases: [...]</text>
+    <text class="mono" x="606" y="604">current_test: 2</text>
+    <text class="mono" x="606" y="634">results: [r1, r2]</text>
+    <text class="mono" x="606" y="664">passed: false</text>
+    <text class="mono" x="606" y="694">summary: ""</text>
+    <text class="small" x="606" y="730">This becomes snapshot.values.</text>
+
+    <text class="tag" x="906" y="462">LANGGRAPH BOOKKEEPING</text>
+    <rect x="906" y="480" width="268" height="164" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="mono" x="930" y="514">id · timestamp · version</text>
+    <text class="mono" x="930" y="544">channel_versions</text>
+    <text class="mono" x="930" y="574">versions_seen</text>
+    <text class="mono" x="930" y="604">updated_channels</text>
+    <text class="small" x="930" y="630">Used to schedule safely.</text>
+
+    <rect x="906" y="670" width="268" height="80" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="930" y="700">metadata</text>
+    <text class="mono" x="930" y="730">source: loop · step: 2</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1228" y="370" width="300" height="424" rx="18" fill="#0f172a"/>
+    <text x="1256" y="409" font-family="Inter,Arial" font-size="21" font-weight="700" fill="#fff">How resume works</text>
+
+    <circle cx="1268" cy="464" r="19" fill="#6366f1"/><text x="1262" y="471" font-family="Inter,Arial" font-size="17" font-weight="700" fill="#fff">1</text>
+    <text x="1302" y="458" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">Find the thread</text>
+    <text x="1302" y="482" font-family="Inter,Arial" font-size="14" fill="#cbd5e1">thread_id + namespace</text>
+
+    <circle cx="1268" cy="548" r="19" fill="#6366f1"/><text x="1262" y="555" font-family="Inter,Arial" font-size="17" font-weight="700" fill="#fff">2</text>
+    <text x="1302" y="542" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">Load newest row</text>
+    <text x="1302" y="566" font-family="Inter,Arial" font-size="14" fill="#cbd5e1">follow checkpoint chain</text>
+
+    <circle cx="1268" cy="632" r="19" fill="#14b8a6"/><text x="1262" y="639" font-family="Inter,Arial" font-size="17" font-weight="700" fill="#fff">3</text>
+    <text x="1302" y="626" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">Restore channels</text>
+    <text x="1302" y="650" font-family="Inter,Arial" font-size="14" fill="#cbd5e1">state + graph versions</text>
+
+    <circle cx="1268" cy="716" r="19" fill="#14b8a6"/><text x="1262" y="723" font-family="Inter,Arial" font-size="17" font-weight="700" fill="#fff">4</text>
+    <text x="1302" y="710" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">Schedule next node</text>
+    <text x="1302" y="734" font-family="Inter,Arial" font-size="14" fill="#cbd5e1">run_next_test → test 3</text>
+  </g>
+
+  <rect x="72" y="824" width="1456" height="50" rx="14" fill="#e0e7ff"/>
+  <text x="100" y="856" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#3730a3">Stored:</text>
+  <text class="b" x="174" y="856">state, lineage, channel versions, metadata, and writes</text>
+  <text x="736" y="856" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#be123c">Not stored:</text>
+  <text class="b" x="846" y="856">Python stack frames, open sockets, or a half-finished node</text>
+</svg>

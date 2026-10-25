@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Homework architecture for generating counterexamples</title>
+  <desc id="desc">A repair agent with weak evidence calls a counterexample tool. A generator creates valid small inputs, an oracle computes expected outputs, Judge0 compares the candidate and oracle, and a failing counterexample returns to the repair loop.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L10 5L0 10Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 20px Inter,Arial,sans-serif;fill:#475569}.h{font:700 21px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 17px Inter,Arial,sans-serif;fill:#334155}.small{font:500 14px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 13px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.6px}.edge{stroke:#4f46e5;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="74">Homework: ask for a counterexample</text>
+  <text class="sub" x="72" y="110">When confidence is low, generate evidence instead of asking the repair model to guess harder.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="178" width="260" height="190" rx="18" fill="#eef2ff" stroke="#6366f1" stroke-width="3"/>
+    <text class="tag" x="100" y="218">REPAIR AGENT</text>
+    <text class="h" x="100" y="258">Evidence is weak</text>
+    <text class="mono" x="100" y="294">confidence: 0.55</text>
+    <text class="small" x="100" y="330">Action: find a failing input</text>
+  </g>
+  <path class="edge" d="M332 273H416"/>
+
+  <g filter="url(#shadow)">
+    <rect x="432" y="150" width="1096" height="528" rx="22" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="432" y="150" width="1096" height="62" rx="22" fill="#0f172a"/>
+    <text x="462" y="190" font-family="Inter,Arial" font-size="22" font-weight="700" fill="#fff">find_counterexample(problem, candidate_code)</text>
+
+    <rect x="474" y="258" width="252" height="150" rx="16" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="tag" x="500" y="294">GENERATOR AGENT / FLOW</text>
+    <text class="h" x="500" y="330">Create valid inputs</text>
+    <text class="mono" x="500" y="364">generate_case(seed)</text>
+    <text class="small" x="500" y="392">small, bounded, reproducible</text>
+    <path class="edge" d="M726 334H790"/>
+
+    <rect x="806" y="258" width="252" height="150" rx="16" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="tag" x="832" y="294">TRUSTED ORACLE</text>
+    <text class="h" x="832" y="330">Compute expected</text>
+    <text class="mono" x="832" y="364">brute_force(input)</text>
+    <text class="small" x="832" y="392">slow is fine for tiny cases</text>
+    <path class="edge" d="M1058 334H1122"/>
+
+    <rect x="1138" y="258" width="342" height="150" rx="16" fill="#fff7ed" stroke="#fb923c" stroke-width="2"/>
+    <text class="tag" x="1164" y="294">JUDGE0 COMPARISON</text>
+    <text class="mono" x="1164" y="330">candidate(input)</text>
+    <text class="mono" x="1164" y="360">oracle(input)</text>
+    <text class="small" x="1164" y="392">same output? try next seed</text>
+
+    <path class="edge" d="M1308 408V480H600V418"/>
+    <text class="small" x="1018" y="466">match → generate another case</text>
+
+    <rect x="714" y="522" width="484" height="112" rx="16" fill="#fff1f2" stroke="#fb7185" stroke-width="3"/>
+    <text x="742" y="556" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#be123c" letter-spacing=".6">MISMATCH FOUND</text>
+    <text class="mono" x="742" y="588">stdin + expected + actual + seed</text>
+    <text class="small" x="742" y="616">Return the smallest reproducible counterexample.</text>
+    <path class="edge" d="M714 578H342"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="454" width="260" height="178" rx="18" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="3"/>
+    <text class="tag" x="100" y="494">NEW OBSERVATION</text>
+    <text class="mono" x="100" y="530">stdin: "1 4..."</text>
+    <text class="mono" x="100" y="560">expected: 3</text>
+    <text class="mono" x="100" y="590">actual: 6</text>
+    <text class="small" x="100" y="616">Reason again with evidence.</text>
+  </g>
+  <path class="edge" d="M202 454V378"/>
+
+  <rect x="72" y="728" width="1456" height="126" rx="18" fill="#0f172a"/>
+  <text x="104" y="770" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#a5b4fc" letter-spacing=".6">IMPORTANT</text>
+  <text x="104" y="812" font-family="Inter,Arial" font-size="22" font-weight="700" fill="#fff">An input generator alone does not create a testcase.</text>
+  <text x="778" y="812" font-family="Inter,Arial" font-size="18" font-weight="600" fill="#cbd5e1">You also need a trusted oracle or a property that defines the expected result.</text>
+</svg>

@@ -1,4 +1,4 @@
-# Running Example — The Item That Gets Reused
+# Running example: the item that gets reused
 
 ## The problem
 
@@ -46,14 +46,13 @@ The invariant for 0/1 knapsack is that an item must not consume a state already 
 for current in range(capacity, weight - 1, -1):
 ```
 
-## Why this example lasts all week
+## Where this example is used
 
 - The specification is easy to understand.
 - The code has no syntax or runtime error.
 - The wrong answer needs a carefully chosen boundary case.
 - The root cause is an algorithm invariant, not a typo.
 - A test tool can prove that the old and corrected programs differ.
-- A generator can search weights, values, and capacities for counterexamples.
-- Different agent architectures can be compared on the same evidence.
+- The same bug works for direct calls, routing, retry loops, parallel review, checkpoints, and ReAct.
 
-The tutorial uses this problem every day. Homework uses different debugging problems so learners practise transfer.
+Days 0 to 4 use this program. Day 5 switches to three Codeforces wrong-answer cases so the agents can be compared across difficulty levels.

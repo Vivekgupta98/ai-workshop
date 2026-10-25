@@ -2,3 +2,6 @@
 .*
 # But keep this .gitignore file
 !.gitignore
+
+# Generated local Judge0 database credentials
+judge0/judge0.conf

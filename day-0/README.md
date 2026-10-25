@@ -1,13 +1,12 @@
-# Day 0 Pre-work — Setup and One-State AI
+# Day 0: one model call and one graph node
 
-- **Time:** 45–60 minutes
-- **You will build:** one direct model call and one one-node graph
-- **Know first:** Python functions and dictionaries
-- **Not required yet:** agents, loops, tools, or MLflow internals
+Time: about 45 to 60 minutes.
+
+Day 0 compares a direct model call with a one-node LangGraph. The lesson introduces explicit state through the workshop knapsack example.
 
 ## Start
 
-Complete the [root setup](../README.md) first. From the workshop root:
+Complete the [root setup](../README.md), then run:
 
 ```bash
 source .venv/bin/activate
@@ -17,25 +16,22 @@ cd day-0/tutorial
 jupyter lab
 ```
 
-Open `day-0.ipynb` and select **Python 3.12 — Agentic AI Workshop**.
+Open `day-0.ipynb` and choose the workshop kernel.
 
 ## Follow this order
 
-1. Complete the [tutorial](tutorial/README.md) one cell at a time.
-2. Explain the difference between the direct model call and graph invocation.
-3. Move to the [homework](exercise/README.md). Complete one checkpoint at a time.
-
-The tutorial introduces the [running knapsack example](../RUNNING_EXAMPLE.md). Homework uses a different list-index bug.
+1. Call `workshop-gemini` directly.
+2. Read the buggy knapsack program.
+3. Predict the state returned by a one-node graph.
+4. Run the graph and inspect its state.
+5. Remove a required state field, inspect the error, and restore it.
 
 ## What success looks like
 
-- The model responds through `workshop-gemini`.
-- The graph image has one application node.
-- The final explanation is read from graph state.
-- No API key appears in the notebook.
+The model responds, the graph image contains one application node, and the final explanation is stored in graph state.
 
 ## If you get stuck
 
-Return to the workshop root and run `./workshop doctor`. For kernel, import, or Gateway problems, use [the troubleshooting guide](../TROUBLESHOOTING.md).
+Run `./workshop doctor` from the workshop root. Use [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) for kernel, import, or Gateway problems.
 
-**Exit check:** What did explicit graph state add to the direct model call?
+**Exit question:** What did graph state add to the direct model call?

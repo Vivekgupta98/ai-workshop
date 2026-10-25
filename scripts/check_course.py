@@ -1,25 +1,27 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DAYS = range(6)
 TUTORIALS = [
     ROOT / f"day-{day}" / "tutorial" / f"day-{day}.ipynb"
-    for day in range(7)
+    for day in DAYS
 ]
-EXERCISES = [
-    ROOT / "day-0/exercise/homework.ipynb",
-    ROOT / "day-1/exercise/homework.ipynb",
-    ROOT / "day-2/exercise/homework.ipynb",
-    ROOT / "day-3/exercise/evaluation-lab.ipynb",
-    ROOT / "day-4/exercise/homework.ipynb",
-    ROOT / "day-5/exercise/homework.ipynb",
-    ROOT / "day-6/exercise/judge-calibration.ipynb",
-]
-SKIP = {".git", ".venv", ".workshop", ".next", "QA", "mlruns", "node_modules"}
+SKIP = {".git", ".venv", ".workshop", "mlruns", "node_modules", "student-release"}
+
+NOTEBOOK_MARKERS = {
+    0: ("StateGraph", "capacity"),
+    1: ("route_bug", "attempt"),
+    2: ("stream_mode", "interrupt"),
+    3: ("SqliteSaver", "run_code"),
+    4: ("ToolNode", "run_knapsack_test"),
+    5: ("CORE_CASES", "mlflow.genai.evaluate"),
+}
 
 
 def cell_source(cell: dict) -> str:
@@ -39,14 +41,15 @@ def main() -> None:
         "is separate from this repository",
     ):
         if required not in root_readme:
-            errors.append(f"root README is missing beginner setup guidance: {required}")
+            errors.append(f"root README is missing setup guidance: {required}")
 
-    for day in range(8):
-        for part in ("tutorial", "exercise"):
-            if not (ROOT / f"day-{day}" / part).is_dir():
-                errors.append(f"missing day-{day}/{part}")
+    for day in DAYS:
+        day_dir = ROOT / f"day-{day}"
+        tutorial_dir = day_dir / "tutorial"
+        if not tutorial_dir.is_dir():
+            errors.append(f"missing day-{day}/tutorial")
 
-        day_readme = ROOT / f"day-{day}" / "README.md"
+        day_readme = day_dir / "README.md"
         if not day_readme.exists():
             errors.append(f"missing day-{day}/README.md")
         else:
@@ -60,58 +63,52 @@ def main() -> None:
                 if heading not in text:
                     errors.append(f"{day_readme.relative_to(ROOT)} is missing {heading}")
 
-        tutorial_readme = ROOT / f"day-{day}" / "tutorial" / "README.md"
-        exercise_readme = ROOT / f"day-{day}" / "exercise" / "README.md"
+        tutorial_readme = tutorial_dir / "README.md"
         if not tutorial_readme.exists():
             errors.append(f"missing day-{day}/tutorial/README.md")
-        else:
-            expected_command = "jupyter lab" if day < 7 else "docker compose"
-            if expected_command not in tutorial_readme.read_text():
-                errors.append(
-                    f"{tutorial_readme.relative_to(ROOT)} is missing {expected_command} startup guidance"
-                )
-        if not exercise_readme.exists():
-            errors.append(f"missing day-{day}/exercise/README.md")
-        else:
-            exercise_text = exercise_readme.read_text()
-            if "## Start" not in exercise_text:
-                errors.append(f"{exercise_readme.relative_to(ROOT)} is missing ## Start")
-            if "When these checks pass" not in exercise_text:
-                errors.append(
-                    f"{exercise_readme.relative_to(ROOT)} is missing a visible success description"
-                )
+        elif "jupyter lab" not in tutorial_readme.read_text():
+            errors.append(
+                f"{tutorial_readme.relative_to(ROOT)} is missing jupyter lab startup guidance"
+            )
 
-    for path in TUTORIALS:
+    image_pattern = re.compile(r"!\[[^]]*\]\(([^)]+)\)")
+    for day, path in zip(DAYS, TUTORIALS):
         if not path.exists():
             errors.append(f"missing tutorial notebook: {path.relative_to(ROOT)}")
             continue
-        notebook = json.loads(path.read_text())
-        code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
-        if any(cell.get("execution_count") is None for cell in code_cells):
-            errors.append(f"unexecuted tutorial cell: {path.relative_to(ROOT)}")
-        if any(
-            output.get("output_type") == "error"
-            for cell in code_cells
-            for output in cell.get("outputs", [])
-        ):
-            errors.append(f"saved tutorial error: {path.relative_to(ROOT)}")
-        if "capacity" not in "\n".join(cell_source(cell) for cell in notebook["cells"]):
-            errors.append(f"running example missing: {path.relative_to(ROOT)}")
 
-    for path in EXERCISES:
-        if not path.exists():
-            errors.append(f"missing exercise notebook: {path.relative_to(ROOT)}")
+        try:
+            notebook = json.loads(path.read_text())
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid notebook JSON: {path.relative_to(ROOT)}: {exc}")
             continue
-        notebook = json.loads(path.read_text())
+
         text = "\n".join(cell_source(cell) for cell in notebook["cells"])
-        if text.lower().count("checkpoint") < 3:
-            errors.append(f"exercise needs progressive checkpoints: {path.relative_to(ROOT)}")
+        for marker in NOTEBOOK_MARKERS[day]:
+            if marker not in text:
+                errors.append(f"{path.relative_to(ROOT)} is missing lesson marker: {marker}")
+
+        for index, cell in enumerate(notebook["cells"]):
+            source = cell_source(cell)
+            if cell["cell_type"] == "code":
+                try:
+                    ast.parse(source)
+                except SyntaxError as exc:
+                    errors.append(
+                        f"invalid Python in {path.relative_to(ROOT)} cell {index}: {exc.msg}"
+                    )
+            elif cell["cell_type"] == "markdown":
+                for target in image_pattern.findall(source):
+                    if "://" not in target and not (path.parent / target).exists():
+                        errors.append(
+                            f"missing notebook image in {path.relative_to(ROOT)}: {target}"
+                        )
 
     for line in (ROOT / "requirements.txt").read_text().splitlines():
         if line.strip() and not line.startswith("#") and "==" not in line:
             errors.append(f"unpinned dependency: {line}")
 
-    link_pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+    link_pattern = re.compile(r"\[[^]]*\]\(([^)]+)\)")
     for markdown in ROOT.rglob("*.md"):
         if any(part in SKIP for part in markdown.parts):
             continue
@@ -129,8 +126,8 @@ def main() -> None:
         raise SystemExit(1)
 
     print(
-        "Course checks passed: beginner READMEs, layout, tutorials, checkpoints, "
-        "running example, pins, and links"
+        "Course checks passed for Days 0 to 5: READMEs, tutorial notebooks, "
+        "lesson markers, images, dependency pins, and links."
     )
 
 

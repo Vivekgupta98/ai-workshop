@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Resume a LangGraph run from SQLite</title>
+  <desc id="desc">Technical sequence showing a process closing, state stored by thread ID in SQLite, a new graph instance restoring the state, and resuming at testcase three without replaying the first two tests.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 21px Inter,Arial,sans-serif;fill:#475569}.h{font:700 22px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 18px Inter,Arial,sans-serif;fill:#334155}.small{font:500 15px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 16px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 14px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.5px}.edge{stroke:#4f46e5;stroke-width:4;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="76">Resume from SQLite, not from the beginning</text>
+  <text class="sub" x="72" y="112">The graph object is recreated; the durable thread state is not.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="174" width="398" height="444" rx="20" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="72" y="174" width="398" height="62" rx="20" fill="#334155"/>
+    <text x="100" y="214" font-family="Inter,Arial" font-size="20" font-weight="700" fill="#fff">PROCESS A · interrupted run</text>
+    <text class="tag" x="100" y="274">BEFORE CLOSE</text>
+    <rect x="100" y="296" width="342" height="104" rx="12" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="mono" x="124" y="330">✓ testcase 1 saved</text>
+    <text class="mono" x="124" y="362">✓ testcase 2 saved</text>
+    <text class="mono" x="124" y="394">× testcase 3 interrupted</text>
+    <text class="tag" x="100" y="444">PROCESS OBJECTS</text>
+    <text class="mono" x="100" y="480">checkpoint_connection.close()</text>
+    <text class="mono" x="100" y="516">verifier object discarded</text>
+    <rect x="100" y="548" width="166" height="42" rx="21" fill="#ffe4e6"/>
+    <text x="128" y="575" font-family="Inter,Arial" font-size="15" font-weight="700" fill="#be123c">PROCESS STOPS</text>
+  </g>
+
+  <path class="edge" d="M470 380H588"/>
+  <text class="tag" x="492" y="358">WRITE</text>
+
+  <g filter="url(#shadow)">
+    <ellipse cx="788" cy="244" rx="184" ry="62" fill="#818cf8" stroke="#4338ca" stroke-width="3"/>
+    <path d="M604 244V548C604 582 686 610 788 610S972 582 972 548V244" fill="#eef2ff" stroke="#4338ca" stroke-width="3"/>
+    <ellipse cx="788" cy="548" rx="184" ry="62" fill="#e0e7ff" stroke="#4338ca" stroke-width="3"/>
+    <ellipse cx="788" cy="244" rx="184" ry="62" fill="#818cf8" stroke="#4338ca" stroke-width="3"/>
+    <text x="688" y="252" font-family="Inter,Arial" font-size="23" font-weight="700" fill="#fff">SqliteSaver</text>
+    <text class="mono" x="646" y="340">day-3-checkpoints.sqlite</text>
+    <rect x="638" y="376" width="300" height="142" rx="14" fill="#fff" stroke="#818cf8" stroke-width="2"/>
+    <text class="tag" x="664" y="410">LOOKUP KEY</text>
+    <text class="mono" x="664" y="442">thread_id:</text>
+    <text class="mono" x="664" y="472">"day-3-verifier-001"</text>
+    <text class="small" x="664" y="502">checkpoints + writes + metadata</text>
+  </g>
+
+  <path class="edge" d="M972 380H1088"/>
+  <text class="tag" x="998" y="358">READ</text>
+
+  <g filter="url(#shadow)">
+    <rect x="1100" y="174" width="428" height="444" rx="20" fill="#fff" stroke="#6366f1" stroke-width="3"/>
+    <rect x="1100" y="174" width="428" height="62" rx="20" fill="#4f46e5"/>
+    <text x="1128" y="214" font-family="Inter,Arial" font-size="20" font-weight="700" fill="#fff">PROCESS B · fresh graph object</text>
+    <text class="tag" x="1128" y="274">RECREATE AND RESTORE</text>
+    <text class="mono" x="1128" y="312">SqliteSaver(new_connection)</text>
+    <text class="mono" x="1128" y="346">builder.compile(checkpointer=...)</text>
+    <text class="mono" x="1128" y="380">verifier.get_state(config)</text>
+    <rect x="1128" y="414" width="372" height="112" rx="12" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="mono" x="1152" y="448">current_test: 2</text>
+    <text class="mono" x="1152" y="480">results: [test_1, test_2]</text>
+    <text class="mono" x="1152" y="512">next: ("run_next_test",)</text>
+    <text class="mono" x="1128" y="570">verifier.invoke(None, config)</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="686" width="1456" height="148" rx="18" fill="#0f172a"/>
+    <text x="104" y="724" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#a5b4fc" letter-spacing=".5">RESUMED EXECUTION PLAN</text>
+    <rect x="104" y="748" width="274" height="54" rx="12" fill="#334155"/>
+    <text x="140" y="782" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#94a3b8">test 1 · no replay</text>
+    <path class="edge" d="M378 775H452"/>
+    <rect x="468" y="748" width="274" height="54" rx="12" fill="#334155"/>
+    <text x="504" y="782" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#94a3b8">test 2 · no replay</text>
+    <path class="edge" d="M742 775H816"/>
+    <rect x="832" y="748" width="274" height="54" rx="12" fill="#0f766e"/>
+    <text x="870" y="782" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#fff">test 3 · run now</text>
+    <path class="edge" d="M1106 775H1180"/>
+    <rect x="1196" y="748" width="298" height="54" rx="12" fill="#4338ca"/>
+    <text x="1254" y="782" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#fff">build_report → END</text>
+  </g>
+</svg>

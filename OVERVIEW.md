@@ -1,60 +1,47 @@
-# Agentic AI Workshop — Programme Overview
+# Agentic AI Workshop: programme overview
 
 ## Format
 
-The programme consists of asynchronous **Day 0 pre-work** and seven instructional days. Learners progress from one model call to a durable, observable, tool-using agent application.
+The programme has Day 0 pre-work and five workshop days. Learners move from a direct model call to a tool-using coding agent, then compare several agent designs with deterministic evaluation.
 
 ## Audience
 
-The workshop is for Python developers who are new to agent building. No LangGraph, MLflow, evaluation, multi-agent, or Temporal experience is expected.
+The workshop is for Python developers who are new to LangGraph, MLflow tracing, tool calling, and agent evaluation.
 
-## Running case
+## Running examples
 
-Every recorded tutorial uses the same 0/1-knapsack debugging problem. The specification is short, but the buggy program violates a subtle dynamic-programming invariant by iterating capacity upward and therefore reusing an item. See [RUNNING_EXAMPLE.md](RUNNING_EXAMPLE.md).
+Days 0 to 4 use one 0/1-knapsack program with an upward-loop bug. The code is valid and often produces believable answers, but it reuses an item. See [RUNNING_EXAMPLE.md](RUNNING_EXAMPLE.md).
 
-Homework deliberately uses different problems so students must transfer the ideas rather than copy the demonstration.
+Day 5 uses workshop-authored wrong programs for three Codeforces problems. This gives the benchmark a 1000, 1600, and 2200 rating ladder.
 
 ## Programme map
 
-| Session | New mental model | Learner outcome |
+| Session | Main idea | Notebook outcome |
 | --- | --- | --- |
-| Day 0 pre-work | A model call is input → probabilistic output; a graph makes state explicit | Call the model, build a one-node graph, and inspect its state |
-| Day 1 | A router picks one specialist from state; a bounded loop stops itself | Route a bug to one specialist branch and run a self-checking retry loop with deterministic limits |
-| Day 2 | Streaming changes when progress is seen; a human can decide inside the loop | Stream a bounded loop's progress, then pause after each step for human review |
-| Day 3 | Traces are evidence; examples plus expectations form an evaluation dataset | Inspect spans and compare three architectures fairly |
-| Day 4 | Tools act on the world and need contracts, limits, and verified outcomes | Verify a proposed fix through a guarded execution tool |
-| Day 5 | Multiple agents help only when roles and handoffs are narrow | Coordinate test design and stress testing through typed state |
-| Day 6 | Benchmarks require frozen variables; an LLM judge is a fallible evaluator | Calibrate a judge and make an evidence-backed release decision |
-| Day 7 | Durable workflow state differs from browser, API, trace, and tool state | Operate a production-shaped application and explain its boundaries |
+| Day 0 | A graph makes model state explicit | Compare a direct call with a one-node graph |
+| Day 1 | Deterministic code can route and stop model work | Build a specialist router and a bounded retry loop |
+| Day 2 | Graph execution can fan out, stream updates, and pause | Run parallel reviewers, stream a loop, and resume human review |
+| Day 3 | Checkpoints are saved after graph steps | Resume a failed Judge0 verifier from SQLite and inspect its traces |
+| Day 4 | ReAct alternates model decisions and tool results | Build a two-node coding agent that tests its repairs locally |
+| Day 5 | Agent designs need a shared benchmark | Compare five repair agents with Judge0, MLflow, and an LLM judge |
 
-## Daily rhythm
+## Teaching pattern
 
-Every day follows the same learning loop:
-
-1. **Orient:** what we are building, why it matters, and what is not required yet.
-2. **Predict:** identify state, next node, stopping condition, and maximum calls.
-3. **Build:** implement one small checkpoint at a time.
-4. **Observe:** inspect graph state (and, from Day 3, the MLflow trace).
-5. **Break:** trigger one intentional failure and recover from it.
-6. **Verify:** run deterministic acceptance checks.
-7. **Reflect:** answer one concept question and preview the next day.
+Each notebook asks learners to predict the next state, build or inspect a small graph, run it, and then break one assumption. Days 3 to 5 also use local Judge0 so code claims can be checked by execution.
 
 ## Learning outcomes
 
-By the end, learners can:
+By the end of Day 5, learners can:
 
-- Distinguish a one-shot model call, workflow, and agent.
-- Design typed graph state and deterministic routing.
-- Bound agent loops and tool usage.
-- Read MLflow traces and construct evaluation datasets.
-- Design safe execution-tool contracts.
-- Explain when multi-agent decomposition helps or adds unnecessary complexity.
-- Combine deterministic checks with a calibrated LLM judge.
-- Explain durable execution, streaming, observability, and production gaps.
+- distinguish a direct model call, fixed workflow, and agent loop;
+- define typed state, nodes, reducers, and conditional edges;
+- use deterministic limits around retries and tool calls;
+- pause and resume a graph with checkpoints;
+- expose local Judge0 through a narrow tool contract;
+- read MLflow traces and evaluation tables;
+- compare agent quality with compile rate, solve rate, false success, and cost;
+- compare an LLM judge with deterministic execution results.
 
-## Assessment strategy
+## Validation
 
-- Notebook assertions check structure, state, bounds, and routing—not exact model prose.
-- Each homework produces one graph image and one observable artifact such as a trace, evaluation table, or run ID.
-- Optional challenges extend the same graph without blocking the core outcome.
-- The instructor QA replica executes completed reference assignments, while student releases exclude it.
+`python scripts/check_course.py` checks the Days 0 to 5 layout, README structure, notebook source, dependency pins, and local links. Live model, MLflow, and Judge0 checks remain in `./workshop doctor`.

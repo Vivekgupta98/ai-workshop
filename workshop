@@ -10,8 +10,14 @@ warn() { printf "! %s\n" "$1"; }
 fail() { printf "✗ %s\n" "$1"; FAILURES=$((FAILURES + 1)); }
 
 doctor() {
+  local start_judge0="${1:-false}"
   echo "Agentic AI Workshop setup check"
   echo
+
+  if [[ "$start_judge0" == "true" ]] && ! curl -fsS http://127.0.0.1:2358/about >/dev/null 2>&1; then
+    "$ROOT/scripts/start-judge0.sh" || fail "Judge0 could not be started"
+    echo
+  fi
 
   if [[ -x "$PYTHON" ]]; then
     VERSION="$($PYTHON --version 2>&1)"
@@ -26,7 +32,7 @@ doctor() {
     warn "Environment is not active — run: source .venv/bin/activate"
   fi
 
-  if [[ -x "$PYTHON" ]] && "$PYTHON" -c "import ipykernel, jupyterlab, langchain, langgraph, mlflow" >/dev/null 2>&1; then
+  if [[ -x "$PYTHON" ]] && "$PYTHON" -c "import ipykernel, jupyterlab, langchain, langgraph, mlflow; import langgraph.checkpoint.sqlite" >/dev/null 2>&1; then
     pass "Core Python dependencies import correctly"
   else
     fail "Dependencies incomplete — run: $PYTHON -m pip install -r requirements.txt"
@@ -54,10 +60,15 @@ doctor() {
     fail "MLflow Gateway is not configured — follow README.md section 3"
   fi
 
-  if [[ -f "$ROOT/.env" ]] && grep -Eq '^JUDGE0_(RAPID|ATD)_API_KEY=.+' "$ROOT/.env"; then
-    pass "Judge0 key found for Days 4–7"
+  if curl -fsS http://127.0.0.1:2358/about >/dev/null 2>&1; then
+    pass "Local Judge0 is running at http://127.0.0.1:2358"
+    if [[ -x "$PYTHON" ]] && "$PYTHON" "$ROOT/scripts/check-judge0.py" >/dev/null 2>&1; then
+      pass "Judge0 executes Python, C++14, and Java 11"
+    else
+      fail "Judge0 language smoke test failed — run: ./workshop judge0-test"
+    fi
   else
-    warn "Judge0 key not found — Days 0–3 work; Days 4–5 can use EXECUTION_MODE=mock"
+    fail "Local Judge0 is not running — run: ./workshop judge0-start"
   fi
 
   echo
@@ -70,8 +81,27 @@ doctor() {
 }
 
 case "${1:-doctor}" in
-  doctor) doctor ;;
+  doctor)
+    case "${2:-}" in
+      "") doctor false ;;
+      --start-judge0) doctor true ;;
+      *) echo "Usage: ./workshop doctor [--start-judge0]"; exit 2 ;;
+    esac
+    ;;
   start) "$ROOT/scripts/start-mlflow.sh" ;;
   stop) "$ROOT/scripts/stop-mlflow.sh" ;;
-  *) echo "Usage: ./workshop {doctor|start|stop}"; exit 2 ;;
+  judge0-start) "$ROOT/scripts/start-judge0.sh" ;;
+  judge0-stop) docker compose -f "$ROOT/judge0/docker-compose.yml" down ;;
+  judge0-logs) docker compose -f "$ROOT/judge0/docker-compose.yml" logs -f ;;
+  judge0-test)
+    if [[ -x "$PYTHON" ]]; then
+      "$PYTHON" "$ROOT/scripts/check-judge0.py"
+    else
+      python3 "$ROOT/scripts/check-judge0.py"
+    fi
+    ;;
+  *)
+    echo "Usage: ./workshop {doctor [--start-judge0]|start|stop|judge0-start|judge0-stop|judge0-logs|judge0-test}"
+    exit 2
+    ;;
 esac

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Judge0 as a deterministic local tool</title>
+  <desc id="desc">Technical flow from a LangChain tool through the local Judge0 API to an isolated execution worker and back as a structured result.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 21px Inter,Arial,sans-serif;fill:#475569}.h{font:700 23px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 18px Inter,Arial,sans-serif;fill:#334155}.small{font:500 15px Inter,Arial,sans-serif;fill:#475569}.mono{font:500 17px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#dbeafe}.mono2{font:600 16px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 14px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.5px}.white{fill:#fff}.card{fill:#fff;stroke:#cbd5e1;stroke-width:2}.accent{fill:#eef2ff;stroke:#818cf8;stroke-width:2}.ok{fill:#ecfdf5;stroke:#2dd4bf;stroke-width:2}.line{stroke:#4f46e5;stroke-width:4;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect x="0" y="0" width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="76">Judge0 as a deterministic local tool</text>
+  <text class="sub" x="72" y="112">One program and one test in. One structured result out.</text>
+
+  <g filter="url(#shadow)">
+    <rect class="card" x="72" y="178" rx="18" width="360" height="454"/>
+    <rect x="72" y="178" rx="18" width="360" height="64" fill="#0f172a"/>
+    <text x="100" y="218" font-family="Inter,Arial" font-size="20" font-weight="700" fill="#fff">@tool  run_code(...)</text>
+    <text class="tag" x="100" y="280">INPUT CONTRACT</text>
+    <text class="mono2" x="100" y="318">language: python | cpp14 | java11</text>
+    <text class="mono2" x="100" y="354">source_code: str</text>
+    <text class="mono2" x="100" y="390">stdin: str</text>
+    <text class="mono2" x="100" y="426">expected_output: str</text>
+    <line x1="100" y1="454" x2="404" y2="454" stroke="#e2e8f0" stroke-width="2"/>
+    <text class="tag" x="100" y="492">LIMITS SENT WITH REQUEST</text>
+    <text class="b" x="100" y="530">CPU 2 s  ·  wall 5 s</text>
+    <text class="b" x="100" y="562">memory 512 MB  ·  file 1 MB</text>
+    <text class="small" x="100" y="606">Validation happens before the API call.</text>
+  </g>
+
+  <path class="line" d="M432 374H554"/>
+  <rect x="454" y="316" width="120" height="34" rx="17" fill="#eef2ff"/>
+  <text class="tag" x="472" y="339">HTTP POST</text>
+
+  <g filter="url(#shadow)">
+    <rect x="568" y="162" width="510" height="494" rx="24" fill="#eef2ff" stroke="#6366f1" stroke-width="3" stroke-dasharray="10 8"/>
+    <text class="tag" x="600" y="202">LOCAL DOCKER NETWORK</text>
+    <rect x="602" y="230" width="442" height="112" rx="16" fill="#fff" stroke="#818cf8" stroke-width="2"/>
+    <text class="h" x="628" y="270">Judge0 CE API</text>
+    <text class="mono2" x="628" y="306">127.0.0.1:2358/submissions?wait=true</text>
+    <path d="M823 342V390" stroke="#4f46e5" stroke-width="4" marker-end="url(#arrow)"/>
+    <rect x="602" y="398" width="442" height="212" rx="16" fill="#0f172a"/>
+    <text x="628" y="438" font-family="Inter,Arial" font-size="21" font-weight="700" fill="#fff">Isolated execution worker</text>
+    <rect x="628" y="468" width="118" height="42" rx="9" fill="#312e81"/><text class="mono" x="647" y="495">compile</text>
+    <rect x="764" y="468" width="118" height="42" rx="9" fill="#312e81"/><text class="mono" x="793" y="495">run</text>
+    <rect x="900" y="468" width="118" height="42" rx="9" fill="#0f766e"/><text class="mono" x="922" y="495">compare</text>
+    <text class="mono" x="628" y="552">sandboxed process · resource limits</text>
+    <text class="mono" x="628" y="582">stdout / stderr / compile_output</text>
+  </g>
+
+  <path class="line" d="M1078 374H1196"/>
+  <rect x="1086" y="316" width="132" height="34" rx="17" fill="#ecfdf5"/>
+  <text x="1100" y="339" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#0f766e">JSON RESULT</text>
+
+  <g filter="url(#shadow)">
+    <rect class="ok" x="1210" y="178" rx="18" width="318" height="454"/>
+    <text class="tag" x="1240" y="220">OUTPUT CONTRACT</text>
+    <text class="mono2" x="1240" y="264">status: "Accepted"</text>
+    <text class="mono2" x="1240" y="302">passed: true</text>
+    <text class="mono2" x="1240" y="340">stdout: "42"</text>
+    <text class="mono2" x="1240" y="378">stderr: ""</text>
+    <text class="mono2" x="1240" y="416">compile_output: ""</text>
+    <text class="mono2" x="1240" y="454">time: ...</text>
+    <text class="mono2" x="1240" y="492">memory: ...</text>
+    <rect x="1240" y="530" width="166" height="48" rx="24" fill="#14b8a6"/>
+    <text x="1270" y="561" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#fff">passed = true</text>
+  </g>
+
+  <g>
+    <rect x="72" y="706" width="1456" height="128" rx="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="100" y="745">LANGUAGE IDS ARE DISCOVERED FROM GET /languages</text>
+    <line x1="100" y1="766" x2="1500" y2="766" stroke="#e2e8f0"/>
+    <text class="mono2" x="112" y="806">python</text><text class="b" x="235" y="806">Python 3.8.1</text>
+    <text class="mono2" x="558" y="806">cpp14</text><text class="b" x="676" y="806">GCC 9.2.0  ·  -std=c++14</text>
+    <text class="mono2" x="1116" y="806">java11</text><text class="b" x="1232" y="806">OpenJDK 11</text>
+  </g>
+</svg>

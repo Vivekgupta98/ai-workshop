@@ -1,21 +1,6 @@
-# Day 1 Tutorial — Multi-State Routing and a Retry Loop
+# Day 1 tutorial
 
-This is the completed code used in the recorded tutorial.
-
-The running example is the 0/1-knapsack program from `RUNNING_EXAMPLE.md`. Its upward capacity loop looks plausible but silently reuses the current item.
-
-## Video flow
-
-1. Connect to the shared model gateway.
-2. Define the triage and specialist prompts, and their structured-output schemas.
-3. Share one typed state across every node.
-4. Route to a single specialist with a conditional edge, then finalize.
-5. Visualize and run the multi-state graph; confirm the running bug takes the `logic` route.
-6. Break the `Literal` route contract in a copy and restore it.
-7. Build a one-node bounded retry loop that reviews its previous attempts.
-8. Run the retry loop on the same problem, then break its stopping condition in a copy and restore it.
-
-From the workshop root:
+Start from the workshop root:
 
 ```bash
 source .venv/bin/activate
@@ -24,6 +9,8 @@ cd day-1/tutorial
 jupyter lab
 ```
 
-Open `day-1.ipynb` and run it from top to bottom. After watching the video, continue to the [homework](../exercise/README.md).
+Open `day-1.ipynb` and run it from top to bottom.
 
-Select **Python 3.12 — Agentic AI Workshop** if prompted. Pause at each prediction cell before running the next cell. A successful lesson produces two graph images — the router and the retry loop — and debugger results for the same input.
+Part 1 builds a triage node, three specialist branches, and a deterministic router. Part 2 builds a bounded retry loop that reads its earlier attempts. Both parts use the [knapsack bug](../../RUNNING_EXAMPLE.md).
+
+The intentional failures show what happens when a route falls outside its `Literal` contract or a loop loses its stopping rule.

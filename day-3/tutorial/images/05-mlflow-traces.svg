@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Read failed and resumed MLflow traces</title>
+  <desc id="desc">Two linked trace timelines show the failed invocation with two Judge0 calls and a connection error, followed by a resumed invocation containing only test three and the report node.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 21px Inter,Arial,sans-serif;fill:#475569}.h{font:700 22px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 18px Inter,Arial,sans-serif;fill:#334155}.small{font:500 15px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 14px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.5px}.grid{stroke:#e2e8f0;stroke-width:1}.guide{stroke:#94a3b8;stroke-width:2;stroke-dasharray:5 5}.span1{fill:#4f46e5}.span2{fill:#818cf8}.tool{fill:#14b8a6}.fail{fill:#ef4444}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="76">Checkpoint state vs MLflow trace</text>
+  <text class="sub" x="72" y="112">SQLite decides where execution can continue. MLflow explains what each invocation actually did.</text>
+
+  <rect x="72" y="148" width="1456" height="72" rx="16" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+  <text class="tag" x="104" y="178">SHARED WORKSHOP IDENTITY</text>
+  <text class="mono" x="104" y="204">configurable.thread_id = "day-3-verifier-001"   ·   trace tag day = "3"</text>
+  <text class="small" x="1092" y="190">Two invocations, two traces</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="252" width="1456" height="236" rx="18" fill="#fff" stroke="#fda4af" stroke-width="2"/>
+    <text x="104" y="290" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#be123c">TRACE A · phase = failed-run</text>
+    <text class="small" x="1298" y="290">state: ERROR</text>
+    <line class="grid" x1="380" y1="310" x2="380" y2="460"/><line class="grid" x1="590" y1="310" x2="590" y2="460"/><line class="grid" x1="800" y1="310" x2="800" y2="460"/><line class="grid" x1="1010" y1="310" x2="1010" y2="460"/><line class="grid" x1="1220" y1="310" x2="1220" y2="460"/><line class="grid" x1="1430" y1="310" x2="1430" y2="460"/>
+    <text class="mono" x="104" y="336">verifier.invoke</text><rect class="span1" x="300" y="316" width="1120" height="26" rx="7"/>
+    <text class="mono" x="104" y="372">run_next_test #1</text><rect class="span2" x="330" y="352" width="260" height="26" rx="7"/>
+    <text class="mono" x="104" y="406">└ judge0.run_code</text><rect class="tool" x="386" y="386" width="164" height="22" rx="6"/><text x="558" y="403" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#0f766e">Accepted</text>
+    <text class="mono" x="654" y="372">run_next_test #2</text><rect class="span2" x="852" y="352" width="260" height="26" rx="7"/>
+    <text class="mono" x="654" y="406">└ judge0.run_code</text><rect class="tool" x="908" y="386" width="164" height="22" rx="6"/><text x="1080" y="403" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#b45309">Wrong Answer</text>
+    <text class="mono" x="1148" y="372">run_next_test #3</text><rect class="fail" x="1340" y="352" width="80" height="26" rx="7"/>
+    <text x="1120" y="438" font-family="Inter,Arial" font-size="15" font-weight="700" fill="#be123c">ConnectionError before Judge0 call → no tool span</text>
+  </g>
+
+  <path d="M188 488V526" stroke="#4f46e5" stroke-width="4" stroke-dasharray="6 6"/>
+  <rect x="104" y="496" width="168" height="34" rx="17" fill="#eef2ff"/>
+  <text class="tag" x="126" y="519">SAME THREAD_ID</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="532" width="1456" height="214" rx="18" fill="#fff" stroke="#5eead4" stroke-width="2"/>
+    <text x="104" y="570" font-family="Inter,Arial" font-size="18" font-weight="700" fill="#0f766e">TRACE B · phase = resumed-run</text>
+    <text class="small" x="1298" y="570">state: OK</text>
+    <line class="grid" x1="380" y1="590" x2="380" y2="720"/><line class="grid" x1="590" y1="590" x2="590" y2="720"/><line class="grid" x1="800" y1="590" x2="800" y2="720"/><line class="grid" x1="1010" y1="590" x2="1010" y2="720"/><line class="grid" x1="1220" y1="590" x2="1220" y2="720"/><line class="grid" x1="1430" y1="590" x2="1430" y2="720"/>
+    <text class="mono" x="104" y="616">verifier.invoke</text><rect class="span1" x="300" y="596" width="1120" height="26" rx="7"/>
+    <text class="mono" x="104" y="652">run_next_test #3</text><rect class="span2" x="330" y="632" width="500" height="26" rx="7"/>
+    <text class="mono" x="104" y="686">└ judge0.run_code</text><rect class="tool" x="386" y="666" width="388" height="22" rx="6"/><text x="782" y="683" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#b45309">Wrong Answer</text>
+    <text class="mono" x="908" y="652">build_report</text><rect class="span2" x="1056" y="632" width="276" height="26" rx="7"/>
+    <text class="mono" x="908" y="686">summary = "1/3 testcases passed"</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="786" width="706" height="76" rx="16" fill="#0f172a"/>
+    <text x="100" y="816" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#5eead4">SQLITE CHECKPOINT</text>
+    <text x="100" y="844" font-family="Inter,Arial" font-size="18" font-weight="600" fill="#fff">What state is safe, and which node is next?</text>
+    <rect x="822" y="786" width="706" height="76" rx="16" fill="#312e81"/>
+    <text x="850" y="816" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#c7d2fe">MLFLOW TRACE</text>
+    <text x="850" y="844" font-family="Inter,Arial" font-size="18" font-weight="600" fill="#fff">What ran, how long, and where did it fail?</text>
+  </g>
+</svg>

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">One repair session, two MLflow traces, and a SQLite checkpoint chain</title>
+  <desc id="desc">The agent trace may include one-test-at-a-time Judge0 calls and a structured proposal. A second trace independently verifies all tests. SQLite stores the complete RepairState by thread identifier. The recursion limit bounds graph steps.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 20px Inter,Arial,sans-serif;fill:#475569}
+      .h{font:700 22px Inter,Arial,sans-serif;fill:#0f172a}.b{font:600 17px Inter,Arial,sans-serif;fill:#334155}
+      .small{font:500 15px Inter,Arial,sans-serif;fill:#475569}.tiny{font:500 13px Inter,Arial,sans-serif;fill:#64748b}
+      .mono{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 14px Inter,Arial,sans-serif;letter-spacing:.5px}
+      .arrow{stroke:#94a3b8;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L10 5L0 10Z" fill="#94a3b8"/></marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="74">One repair session, three different jobs</text>
+  <text class="sub" x="72" y="110">MLflow explains execution. SQLite restores graph state. The recursion limit prevents an endless loop.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="150" width="1456" height="398" rx="20" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="96" y="174" width="1408" height="54" rx="12" fill="#eef2ff"/>
+    <text class="tag" x="120" y="207" fill="#4338ca">MLFLOW SESSION</text><text class="mono" x="287" y="207">day-4-evidence-001</text>
+    <text class="small" x="1162" y="207">groups both phases</text>
+
+    <rect x="96" y="252" width="838" height="264" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="120" y="284" fill="#4338ca">TRACE A · day4.react_agent</text>
+    <text class="small" x="120" y="311">The model decides whether another observation is worth its cost.</text>
+    <rect x="120" y="344" width="172" height="66" rx="12" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+    <text class="b" x="153" y="373">react.decide</text><text class="tiny" x="153" y="396">reason about evidence</text>
+    <path class="arrow" d="M292 377 H354"/>
+    <rect x="356" y="344" width="214" height="66" rx="12" fill="#ccfbf1" stroke="#14b8a6" stroke-width="2"/>
+    <text class="b" x="387" y="373">optional next test</text><text class="tiny" x="387" y="396">one call, one result</text>
+    <path class="arrow" d="M570 377 H632"/>
+    <rect x="634" y="344" width="266" height="66" rx="12" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+    <text class="b" x="666" y="373">structured proposal</text><text class="tiny" x="666" y="396">diagnosis · confidence · code</text>
+    <path d="M463 412 V449 H205 V412" fill="none" stroke="#14b8a6" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+    <text class="tiny" x="302" y="470" text-anchor="middle">one result returns to the model</text>
+    <text class="small" x="120" y="496">The loop can stop before every visible testcase has run.</text>
+
+    <rect x="966" y="252" width="538" height="264" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="990" y="284" fill="#0f766e">TRACE B · day4.verify_repair</text>
+    <text class="small" x="990" y="311">The proposed code is checked outside the reasoning loop.</text>
+    <rect x="990" y="344" width="198" height="66" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+    <text class="b" x="1020" y="373">read RepairState</text><text class="tiny" x="1020" y="396">use fixed_code directly</text>
+    <path class="arrow" d="M1188 377 H1240"/>
+    <rect x="1242" y="344" width="230" height="66" rx="12" fill="#ccfbf1" stroke="#14b8a6" stroke-width="2"/>
+    <text class="b" x="1272" y="373">Judge0 full suite</text><text class="tiny" x="1272" y="396">test 1, 2, 3 in a loop</text>
+    <rect x="990" y="438" width="482" height="48" rx="10" fill="#ecfdf5" stroke="#86efac"/>
+    <text x="1014" y="468" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="700" fill="#166534">Trust verification, not the confidence number.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="586" width="974" height="246" rx="20" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="100" y="621" fill="#0f766e">SQLITE · RepairState CHECKPOINTED BY thread_id</text>
+    <rect x="100" y="650" width="180" height="72" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
+    <text class="mono" x="120" y="681">input fields</text><text class="tiny" x="120" y="705">problem · code · tests</text>
+    <path class="arrow" d="M280 686 H326"/>
+    <rect x="328" y="650" width="180" height="72" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
+    <text class="mono" x="348" y="681">AIMessage</text><text class="tiny" x="348" y="705">tool call or final</text>
+    <path class="arrow" d="M508 686 H554"/>
+    <rect x="556" y="650" width="180" height="72" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
+    <text class="mono" x="576" y="681">ToolMessage</text><text class="tiny" x="576" y="705">one test observation</text>
+    <path class="arrow" d="M736 686 H782"/>
+    <rect x="784" y="650" width="230" height="72" rx="12" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/>
+    <text class="mono" x="804" y="681">state fields</text><text class="tiny" x="804" y="705">diagnosis · confidence · code</text>
+    <text class="small" x="100" y="764">Checkpoint values include inputs, messages, and validated proposal fields.</text>
+    <text class="tiny" x="100" y="795">SQLite stores graph state; MLflow separately records execution.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1078" y="586" width="450" height="246" rx="20" fill="#0f172a"/>
+    <text x="1106" y="621" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#a5b4fc" letter-spacing=".5">GRAPH SAFETY BOUNDARY</text>
+    <text x="1106" y="671" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="24" font-weight="700" fill="#fff">recursion_limit = 8</text>
+    <text x="1106" y="712" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="600" fill="#fff">Counts graph steps, not just tool calls.</text>
+    <text x="1106" y="747" font-family="Inter,Arial,sans-serif" font-size="16" fill="#cbd5e1">Prompt: asks for at most two calls.</text>
+    <text x="1106" y="777" font-family="Inter,Arial,sans-serif" font-size="16" fill="#cbd5e1">Runtime: stops the graph at eight steps.</text>
+    <text x="1106" y="807" font-family="Inter,Arial,sans-serif" font-size="16" fill="#cbd5e1">Verification runs after the graph ends.</text>
+  </g>
+</svg>

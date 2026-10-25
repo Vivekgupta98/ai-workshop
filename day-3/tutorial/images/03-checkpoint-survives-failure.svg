@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Checkpoint boundary during a failure</title>
+  <desc id="desc">Execution timeline showing checkpoints after tests one and two, then a connection error before test three returns, leaving test two as the latest durable state.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 21px Inter,Arial,sans-serif;fill:#475569}.h{font:700 22px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 18px Inter,Arial,sans-serif;fill:#334155}.small{font:500 15px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 17px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 14px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.5px}.edge{stroke:#4f46e5;stroke-width:5;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="76">Where the checkpoint boundary matters</text>
+  <text class="sub" x="72" y="112">The third node starts but never returns. The last safe state is the checkpoint after test 2.</text>
+
+  <rect x="72" y="158" width="1456" height="116" rx="16" fill="#0f172a"/>
+  <text x="104" y="198" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#a5b4fc" letter-spacing=".5">DEMONSTRATION SETUP</text>
+  <text x="104" y="240" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="24" font-weight="600" fill="#fff">SIMULATE_FAILURE_AT = 2   # zero-based index → fail before testcase 3</text>
+
+  <line x1="146" y1="420" x2="1430" y2="420" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round"/>
+  <path class="edge" d="M146 420H1420"/>
+
+  <g filter="url(#shadow)">
+    <circle cx="210" cy="420" r="28" fill="#4f46e5" stroke="#fff" stroke-width="7"/>
+    <rect x="112" y="302" width="196" height="82" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="tag" x="136" y="332">INITIAL STATE</text>
+    <text class="mono" x="136" y="362">current_test: 0</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="570" cy="420" r="28" fill="#14b8a6" stroke="#fff" stroke-width="7"/>
+    <rect x="438" y="292" width="264" height="92" rx="14" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="tag" x="464" y="324">TEST 1 RETURNS</text>
+    <text class="mono" x="464" y="356">current_test: 1</text>
+    <rect x="482" y="456" width="176" height="54" rx="27" fill="#14b8a6"/>
+    <text x="510" y="490" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">CHECKPOINT 1</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="926" cy="420" r="28" fill="#14b8a6" stroke="#fff" stroke-width="7"/>
+    <rect x="794" y="292" width="264" height="92" rx="14" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="3"/>
+    <text class="tag" x="820" y="324">TEST 2 RETURNS</text>
+    <text class="mono" x="820" y="356">current_test: 2</text>
+    <rect x="826" y="456" width="200" height="54" rx="27" fill="#14b8a6"/>
+    <text x="850" y="490" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">CHECKPOINT 2 ✓</text>
+    <text class="small" x="840" y="536">latest durable state</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="1284" cy="420" r="34" fill="#ef4444" stroke="#fff" stroke-width="8"/>
+    <path d="M1268 404L1300 436M1300 404L1268 436" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+    <rect x="1152" y="286" width="300" height="98" rx="14" fill="#fff1f2" stroke="#fb7185" stroke-width="3"/>
+    <text x="1178" y="320" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#be123c">TEST 3 STARTS</text>
+    <text class="mono" x="1178" y="352">ConnectionError raised</text>
+    <rect x="1192" y="456" width="184" height="54" rx="27" fill="#ffe4e6" stroke="#fb7185" stroke-width="2"/>
+    <text x="1221" y="490" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#be123c">NO CHECKPOINT</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="604" width="832" height="220" rx="18" fill="#fff" stroke="#2dd4bf" stroke-width="3"/>
+    <text class="tag" x="104" y="646">verifier.get_state(config)</text>
+    <text class="mono" x="104" y="688">snapshot.values["current_test"]  →  2</text>
+    <text class="mono" x="104" y="726">len(snapshot.values["results"]) →  2</text>
+    <text class="mono" x="104" y="764">snapshot.next                    →  ("run_next_test",)</text>
+    <text class="small" x="104" y="800">The state shows that test 3 must run again.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="938" y="604" width="590" height="220" rx="18" fill="#0f172a"/>
+    <text x="970" y="646" font-family="Inter,Arial" font-size="14" font-weight="700" fill="#a5b4fc" letter-spacing=".5">RECOVERY RULE</text>
+    <text x="970" y="700" font-family="Inter,Arial" font-size="25" font-weight="700" fill="#fff">Completed nodes are durable.</text>
+    <text x="970" y="741" font-family="Inter,Arial" font-size="25" font-weight="700" fill="#fff">A failed node runs again.</text>
+    <text x="970" y="790" font-family="Inter,Arial" font-size="17" fill="#cbd5e1">Checkpointing does not save halfway through a function.</text>
+  </g>
+</svg>

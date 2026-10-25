@@ -1,12 +1,12 @@
 # Agentic AI Workshop
 
-This course has **Day 0 pre-work plus seven instructional days**. Complete Day 0 before the first live class.
+This repository contains Day 0 pre-work and five workshop days. The course starts with one model call, adds LangGraph state and control flow, introduces local code execution with Judge0, and ends with an MLflow evaluation of five repair agents.
 
-You will begin with one model call and gradually build stateful, observable, tool-using, multi-agent, and durable AI systems. Every tutorial uses the same [0/1-knapsack debugging example](RUNNING_EXAMPLE.md), so you can focus on the new agent concept instead of learning a new problem each day.
+Days 0 to 4 use the same [0/1-knapsack bug](RUNNING_EXAMPLE.md). Day 5 switches to three Codeforces wrong-answer cases rated 1000, 1600, and 2200.
 
-## Start here
+## Setup
 
-Use these instructions from the workshop root—the folder containing this README.
+Run these commands from the folder containing this README.
 
 ### 1. Check Python
 
@@ -14,11 +14,9 @@ Use these instructions from the workshop root—the folder containing this READM
 python3 --version
 ```
 
-The result must start with `Python 3.12`. If it does not, install Python 3.12 before continuing. Do not use the machine's `pip3`; it may belong to another Python installation.
+Use Python 3.12. Windows learners should use WSL 2 so the workshop commands and local Judge0 setup match the course.
 
-Windows learners should use WSL 2 so their commands match the course videos.
-
-### 2. Create the workshop environment
+### 2. Create the environment
 
 ```bash
 python3 -m venv .venv
@@ -27,21 +25,17 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-After activation, your terminal prompt normally begins with `(.venv)`.
-
-Register the environment as a Jupyter kernel:
+Register the Jupyter kernel once:
 
 ```bash
 python -m ipykernel install --user \
   --name agentic-ai-workshop \
-  --display-name "Python 3.12 — Agentic AI Workshop"
+  --display-name "Python 3.12: Agentic AI Workshop"
 ```
 
-### 3. Confirm the workshop model is running
+### 3. Check the workshop model
 
-The model service at `http://127.0.0.1:8317/v1` is separate from this repository. Your instructor or workshop host starts it. Ask the instructor to confirm it is available before configuring MLflow.
-
-The value `123456` used below is the local workshop credential, not a personal provider secret.
+The model service at `http://127.0.0.1:8317/v1` is separate from this repository. The instructor or workshop host starts it. The local workshop credential is `123456`; it is not a personal provider key.
 
 ### 4. Start MLflow
 
@@ -49,94 +43,85 @@ The value `123456` used below is the local workshop credential, not a personal p
 ./workshop start
 ```
 
-Open [http://127.0.0.1:5001](http://127.0.0.1:5001). Keep MLflow running while working through Days 0–6.
+Open [http://127.0.0.1:5001](http://127.0.0.1:5001) and keep it running through Day 5.
 
-### 5. Configure the MLflow Gateway once
+### 5. Configure the MLflow Gateway
 
-In MLflow:
+This is a one-time setup:
 
-1. Open **Settings → LLM Connections**.
-2. Create a connection named `local-gemini-key`.
-3. Select **OpenAI** because the workshop model implements the OpenAI-compatible API.
-4. Enter `123456` as the key.
-5. Set the base URL to `http://127.0.0.1:8317/v1` and save.
-6. Open **AI Gateway → Endpoints**.
-7. Create an endpoint named `workshop-gemini`.
-8. Select the OpenAI provider, model `gemini-3-flash`, and connection `local-gemini-key`.
-9. Enable usage tracking and save.
+1. Open `Settings -> LLM Connections` in MLflow.
+2. Create `local-gemini-key` with the OpenAI provider, key `123456`, and base URL `http://127.0.0.1:8317/v1`.
+3. Open `AI Gateway -> Endpoints`.
+4. Create `workshop-gemini` with model `gemini-3-flash` and connection `local-gemini-key`.
+5. Enable usage tracking and save.
 
-### 6. Verify everything
+### 6. Run the checks
 
 ```bash
 ./workshop doctor
 ```
 
-Core checks should show `✓`. Judge0 may show a warning; it is not required until Day 4, and Days 4–5 tutorials provide a mock mode. If a check fails, fix the first failure and run the command again.
+Fix the first failed check, then run the command again. From Day 3 onward, Docker and local Judge0 are also required:
 
-## Begin Day 0
+```bash
+./workshop doctor --start-judge0
+```
+
+## Course map
+
+| Session | Topic | Start page |
+| --- | --- | --- |
+| Day 0 pre-work | One model call and one graph node | [Day 0](day-0/README.md) |
+| Day 1 | Conditional routing and a bounded retry loop | [Day 1](day-1/README.md) |
+| Day 2 | Parallel nodes, streaming, and human review | [Day 2](day-2/README.md) |
+| Day 3 | Checkpoints, SQLite persistence, local Judge0, and traces | [Day 3](day-3/README.md) |
+| Day 4 | A two-node ReAct coding agent | [Day 4](day-4/README.md) |
+| Day 5 | A wrong-answer repair benchmark in MLflow | [Day 5](day-5/README.md) |
+
+Each day has a completed tutorial notebook under `day-N/tutorial/`. Run one cell at a time on the first pass.
+
+## Start Day 0
 
 ```bash
 cd day-0/tutorial
 jupyter lab
 ```
 
-Open `day-0.ipynb`, choose **Python 3.12 — Agentic AI Workshop**, and run one cell at a time from top to bottom.
+Open `day-0.ipynb` and choose the workshop kernel.
 
-## Course map
+## Local Judge0 from Day 3
 
-| Session | Topic | Start page |
-| --- | --- | --- |
-| Day 0 pre-work | Setup and one-state AI | [Day 0](day-0/README.md) |
-| Day 1 | Multi-state routing and a bounded retry loop | [Day 1](day-1/README.md) |
-| Day 2 | Streaming and human-in-the-loop | [Day 2](day-2/README.md) |
-| Day 3 | Traces, datasets, and evaluation | [Day 3](day-3/README.md) |
-| Day 4 | Guarded execution tools | [Day 4](day-4/README.md) |
-| Day 5 | Multi-agent stress testing | [Day 5](day-5/README.md) |
-| Day 6 | Benchmarking and LLM-as-judge | [Day 6](day-6/README.md) |
-| Day 7 | Production-shaped full stack | [Day 7](day-7/README.md) |
-
-Every day has:
-
-- `tutorial/` — completed material used in the recorded lesson.
-- `exercise/` — checkpoint-based homework. Do not use **Run All** until every TODO is complete.
-
-## Judge0 from Day 4
-
-If the root `.env` file does not exist, create it from the template:
+Judge0 runs in Docker on your machine. The workshop does not use RapidAPI or any hosted Judge0 key.
 
 ```bash
-cp .env.example .env
+./workshop judge0-start
+./workshop judge0-test
 ```
 
-Leave `EXECUTION_MODE=mock` for the Day 4–5 tutorials. The mock works only for the documented knapsack example and is not proof that arbitrary code executed. Original homework programs require `EXECUTION_MODE=judge0` plus a Judge0 provider key.
+The smoke test runs Python 3, C++14, and Java 11. Read the [local Judge0 guide](judge0/README.md) if startup or language checks fail.
 
-## Docker on Day 7
+## Stop the services
 
-Day 7 requires Docker Desktop. Its Compose stack includes its own MLflow server, so stop the shared server before starting Day 7:
+When you finish:
 
 ```bash
+./workshop judge0-stop
 ./workshop stop
 ```
 
-Then follow the [Day 7 start page](day-7/README.md).
+## Other guides
 
-## If you get stuck
-
-Run `./workshop doctor`, then open [TROUBLESHOOTING.md](TROUBLESHOOTING.md). Definitions for unfamiliar terms are in [GLOSSARY.md](GLOSSARY.md).
-
-When you finish Days 0–6, stop MLflow:
-
-```bash
-./workshop stop
-```
+- [Programme overview](OVERVIEW.md)
+- [Running example](RUNNING_EXAMPLE.md)
+- [Glossary](GLOSSARY.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
 
 ## For instructors
 
-`QA/` contains executed reference solutions and must not be distributed to learners. Create a clean learner copy with `./scripts/make-student-release.sh`.
-
-After editing the course, run:
+Check the current Days 0 to 5 structure, notebooks, dependency pins, and links with:
 
 ```bash
 python scripts/check_course.py
-python QA/check_qa.py
 ```
+
+Create a clean learner copy with `./scripts/make-student-release.sh`.

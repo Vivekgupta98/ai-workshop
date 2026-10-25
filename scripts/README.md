@@ -1,19 +1,21 @@
-# Workshop Scripts
+# Workshop scripts
 
-These files maintain the workshop; they are not part of the daily agent lessons.
-
-Learners should use the simpler root command:
+Learners normally use the root command:
 
 ```bash
 ./workshop start
 ./workshop doctor
+./workshop judge0-start
+./workshop judge0-test
 ./workshop stop
 ```
 
-Instructor utilities:
+The scripts in this folder support those commands:
 
-- `check_course.py` validates the course structure, notebooks, documentation, dependencies, and links.
-- `make-student-release.sh` creates a learner copy without QA answers, secrets, environments, or generated state.
-- `start-mlflow.sh` and `stop-mlflow.sh` are called internally by the root `workshop` command.
+- `start-mlflow.sh` and `stop-mlflow.sh` manage the shared MLflow server.
+- `start-judge0.sh` prepares and starts the local Judge0 stack.
+- `check-judge0.py` runs Python, C++14, and Java 11 smoke tests.
+- `check_course.py` validates the current Days 0 to 5 structure, notebooks, links, and pinned dependencies.
+- `make-student-release.sh` creates a learner copy without local environments or generated state.
 
-Generated MLflow state is stored in the hidden root `.workshop/` folder.
+MLflow state and SQLite checkpoints are stored under the hidden `.workshop/` folder.

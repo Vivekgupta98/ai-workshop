@@ -1,86 +1,82 @@
-import os
-import re
+"""Small HTTP client for the workshop's local Judge0 container."""
 
-import judge0
-from dotenv import load_dotenv
+from __future__ import annotations
+
+import json
+from functools import lru_cache
+from urllib.request import Request, urlopen
 
 
-load_dotenv()
+JUDGE0_URL = "http://127.0.0.1:2358"
+LANGUAGE_NAMES = {
+    "python": "Python (3.8.1)",
+    "cpp14": "C++ (GCC 9.2.0)",
+    "java11": "Java (OpenJDK 11)",
+}
 
 
-def _bounded(result) -> dict:
-    return {
-        "mode": "judge0",
-        "status": str(result.status),
-        "stdout": (result.stdout or "").strip()[:2_000],
-        "error": (
-            result.stderr or result.compile_output or result.message or ""
-        ).strip()[:2_000],
+def _request(path: str, payload: dict | None = None):
+    body = None if payload is None else json.dumps(payload).encode()
+    request = Request(
+        f"{JUDGE0_URL}{path}",
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="GET" if payload is None else "POST",
+    )
+    with urlopen(request, timeout=15) as response:
+        return json.load(response)
+
+
+@lru_cache
+def _language_ids() -> dict[str, int]:
+    available = {language["name"]: language["id"] for language in _request("/languages")}
+    missing = [name for name in LANGUAGE_NAMES.values() if name not in available]
+    if missing:
+        raise RuntimeError(f"Local Judge0 is missing: {', '.join(missing)}")
+    return {alias: available[name] for alias, name in LANGUAGE_NAMES.items()}
+
+
+def execute_code(
+    language: str,
+    code: str,
+    stdin: str,
+    expected_output: str | None = None,
+) -> dict:
+    """Execute one bounded testcase through local Judge0."""
+    if language not in LANGUAGE_NAMES:
+        raise ValueError("language must be python, cpp14, or java11")
+    if len(code) > 12_000 or len(stdin) > 2_000:
+        raise ValueError("Code or input is too large")
+
+    payload = {
+        "language_id": _language_ids()[language],
+        "source_code": code,
+        "stdin": stdin,
+        "cpu_time_limit": 2,
+        "wall_time_limit": 5,
+        "memory_limit": 512_000,
+        "max_processes_and_or_threads": 60,
+        "max_file_size": 1_024,
     }
+    if expected_output is not None:
+        payload["expected_output"] = expected_output
+    if language == "cpp14":
+        payload["compiler_options"] = "-std=c++14"
 
-
-def _knapsack(stdin: str, reuse_items: bool) -> str:
-    lines = [line for line in stdin.strip().splitlines() if line.strip()]
-    n, capacity = map(int, lines[0].split())
-    items = [tuple(map(int, line.split())) for line in lines[1:]]
-    if len(items) != n:
-        raise ValueError("Mock input does not contain n items")
-
-    dp = [0] * (capacity + 1)
-    for weight, value in items:
-        if reuse_items:
-            capacities = range(weight, capacity + 1)
-        else:
-            capacities = range(capacity, weight - 1, -1)
-        for current in capacities:
-            dp[current] = max(dp[current], dp[current - weight] + value)
-    return str(dp[capacity])
-
-
-def _mock(code: str, stdin: str) -> dict:
-    if "seed" in code.lower() and "dp" not in code.lower():
-        seed = int(stdin.strip() or "1")
-        cases = {
-            1: "2 5\n2 4\n3 5",
-            2: "1 4\n2 3",
-            3: "3 6\n2 4\n3 5\n4 7",
-        }
-        stdout = cases.get(seed, "1 4\n2 3")
-    else:
-        upward_loop = bool(
-            re.search(r"range\s*\(\s*(weight|w)\s*,\s*(capacity|cap)\s*\+\s*1", code)
-        )
-        stdout = _knapsack(stdin, reuse_items=upward_loop)
-
+    result = _request("/submissions?wait=true", payload)
+    status = result.get("status", {}).get("description", "Unknown")
     return {
-        "mode": "mock",
-        "status": "Accepted",
-        "stdout": stdout,
-        "error": "",
-        "note": "Simulated only for the workshop knapsack example; not proof of arbitrary code execution.",
+        "mode": "local-judge0",
+        "status": status,
+        "passed": status == "Accepted",
+        "stdout": (result.get("stdout") or "").strip()[:2_000],
+        "stderr": (result.get("stderr") or "").strip()[:2_000],
+        "compile_output": (result.get("compile_output") or "").strip()[:2_000],
+        "time": result.get("time"),
+        "memory": result.get("memory"),
     }
 
 
 def execute_python(code: str, stdin: str) -> dict:
-    """Execute through Judge0, or simulate only the documented tutorial example."""
-    if len(code) > 12_000 or len(stdin) > 2_000:
-        raise ValueError("Code or input is too large")
-
-    mode = os.getenv("EXECUTION_MODE", "mock").strip().lower()
-    if mode == "mock":
-        return _mock(code, stdin)
-    if mode != "judge0":
-        raise ValueError("EXECUTION_MODE must be mock or judge0")
-
-    result = judge0.run(
-        source_code=code,
-        stdin=stdin,
-        language=judge0.PYTHON,
-        cpu_time_limit=2,
-        wall_time_limit=4,
-        memory_limit=128_000,
-        max_processes_and_or_threads=8,
-        max_file_size=128,
-        enable_network=False,
-    )
-    return _bounded(result)
+    """Backward-compatible helper used by later workshop material."""
+    return execute_code("python", code, stdin)

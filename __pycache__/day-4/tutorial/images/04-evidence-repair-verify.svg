@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence-first code repair with ReAct</title>
+  <desc id="desc">Problem, code, and optional tests create observations one testcase at a time. A ReAct agent reasons, optionally runs the next test, exits with a diagnosis and confidence, proposes code, and a deterministic Judge0 check verifies the full suite.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L10 5L0 10Z" fill="#4f46e5"/></marker>
+    <style>
+      .title{font:700 42px Inter,Arial,sans-serif;fill:#0f172a}.sub{font:400 20px Inter,Arial,sans-serif;fill:#475569}.h{font:700 22px Inter,Arial,sans-serif;fill:#0f172a}.b{font:500 17px Inter,Arial,sans-serif;fill:#334155}.small{font:500 14px Inter,Arial,sans-serif;fill:#475569}.mono{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#1e293b}.tag{font:700 13px Inter,Arial,sans-serif;fill:#3730a3;letter-spacing:.6px}.edge{stroke:#4f46e5;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f8fafc"/><rect width="18" height="900" fill="#4f46e5"/>
+  <text class="title" x="72" y="74">Evidence first, repair second, verification last</text>
+  <text class="sub" x="72" y="110">Confidence helps the agent decide when to stop. Only execution decides whether the repair works.</text>
+
+  <text class="tag" x="72" y="164">1 · INPUTS</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="184" width="238" height="106" rx="15" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="h" x="98" y="225">Problem</text><text class="small" x="98" y="258">behavior + constraints</text>
+    <rect x="334" y="184" width="238" height="106" rx="15" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="h" x="360" y="225">Buggy code</text><text class="small" x="360" y="258">candidate to inspect</text>
+    <rect x="596" y="184" width="238" height="106" rx="15" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <text class="h" x="622" y="225">Visible tests</text><text class="small" x="622" y="258">optional evidence</text>
+  </g>
+  <path class="edge" d="M310 237H322"/><path class="edge" d="M572 237H584"/>
+
+  <path class="edge" d="M834 237H902"/>
+  <g filter="url(#shadow)">
+    <rect x="918" y="158" width="610" height="158" rx="18" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="3"/>
+    <text class="tag" x="946" y="194">2 · FIRST OBSERVATION</text>
+    <text class="mono" x="946" y="228">test 1: Accepted</text>
+    <text class="small" x="946" y="258">One passing case is not enough evidence.</text>
+    <text class="small" x="946" y="284">The agent decides whether to run test 2.</text>
+    <rect x="1336" y="182" width="160" height="42" rx="21" fill="#0f766e"/>
+    <text x="1375" y="209" font-family="Inter,Arial" font-size="15" font-weight="700" fill="#fff">Judge0</text>
+  </g>
+
+  <text class="tag" x="72" y="382">3 · REACT EVIDENCE LOOP</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="402" width="912" height="300" rx="20" fill="#fff" stroke="#6366f1" stroke-width="3"/>
+    <rect x="104" y="442" width="230" height="100" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="h" x="130" y="480">Reason</text>
+    <text class="small" x="130" y="512">What explains the mismatch?</text>
+    <path class="edge" d="M334 492H410"/>
+    <path d="M506 424L602 492L506 560L410 492Z" fill="#eef2ff" stroke="#6366f1" stroke-width="3"/>
+    <text class="tag" x="458" y="481">MORE</text><text class="mono" x="448" y="507">evidence?</text>
+    <path class="edge" d="M602 462H674"/><text class="small" x="620" y="448">yes</text>
+    <rect x="688" y="416" width="258" height="92" rx="14" fill="#ecfdf5" stroke="#2dd4bf" stroke-width="2"/>
+    <text class="h" x="714" y="450">Run next test</text><text class="small" x="714" y="476">one call → one observation</text>
+    <text class="small" x="714" y="498">test 2: expected 3 · actual 6</text>
+    <path class="edge" d="M817 508V614H220V546"/>
+    <text class="small" x="260" y="594">ToolMessage becomes new evidence</text>
+    <path class="edge" d="M506 560V632H688"/><text class="small" x="530" y="578">no · evidence is sufficient</text>
+    <rect x="702" y="584" width="244" height="82" rx="14" fill="#0f172a"/>
+    <text x="728" y="618" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">Exit the loop</text>
+    <text x="728" y="646" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" font-weight="600" fill="#cbd5e1">confidence: 0.92</text>
+  </g>
+
+  <path class="edge" d="M984 552H1040"/>
+  <g filter="url(#shadow)">
+    <rect x="1056" y="402" width="214" height="300" rx="18" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+    <text class="tag" x="1082" y="442">4 · PROPOSE</text>
+    <text class="h" x="1082" y="482">RepairProposal</text>
+    <rect x="1082" y="510" width="162" height="112" rx="10" fill="#fff"/>
+    <text class="mono" x="1098" y="542">diagnosis: str</text>
+    <text class="mono" x="1098" y="568">confidence: float</text>
+    <text class="mono" x="1098" y="594">fixed_code: str</text>
+    <text class="small" x="1082" y="660">validated structured output</text>
+  </g>
+
+  <path class="edge" d="M1270 552H1318"/>
+  <g filter="url(#shadow)">
+    <rect x="1334" y="402" width="194" height="300" rx="18" fill="#0f172a"/>
+    <text x="1360" y="442" font-family="Inter,Arial" font-size="13" font-weight="700" fill="#a5b4fc" letter-spacing=".6">5 · VERIFY</text>
+    <text x="1360" y="482" font-family="Inter,Arial" font-size="22" font-weight="700" fill="#fff">Judge0</text>
+    <text x="1360" y="514" font-family="Inter,Arial" font-size="15" fill="#cbd5e1">Run all visible tests</text>
+    <rect x="1360" y="548" width="142" height="48" rx="12" fill="#0f766e"/>
+    <text x="1393" y="578" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">3/3 pass</text>
+    <rect x="1360" y="612" width="142" height="48" rx="12" fill="#7f1d1d"/>
+    <text x="1391" y="642" font-family="Inter,Arial" font-size="16" font-weight="700" fill="#fff">fail → loop</text>
+  </g>
+
+  <rect x="72" y="754" width="1456" height="100" rx="17" fill="#e0e7ff"/>
+  <text class="tag" x="104" y="790">SEPARATION OF RESPONSIBILITY</text>
+  <text class="b" x="104" y="826">Agent: decide what to inspect, whether to act again, and when evidence feels sufficient.</text>
+  <text class="b" x="868" y="826">Verifier: execute the proposal and report facts.</text>
+</svg>

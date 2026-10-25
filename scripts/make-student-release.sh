@@ -10,14 +10,11 @@ rsync -a --delete \
   --exclude '.git/' \
   --exclude '.venv/' \
   --exclude '.workshop/' \
-  --exclude 'QA/' \
   --exclude 'student-release/' \
   --exclude '**/__pycache__/' \
   --exclude '**/.ipynb_checkpoints/' \
   --exclude '**/.next/' \
   --exclude '**/node_modules/' \
-  --exclude 'day-7/tutorial/mlflow-data/' \
-  --exclude 'day-7/tutorial/temporal-data/' \
   "$ROOT/" "$DESTINATION/"
 
 echo "Student release created at $DESTINATION"
